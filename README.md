@@ -4,7 +4,7 @@ Django serves the pages and enforces roles. React, through Inertia and Vite, ren
 
 ## Architecture
 
-Three apps sit under `budget_request/apps`: [Loop video](https://www.loom.com/share/014ae0b512634d6a91adac2885205e4e)
+Three apps sit under `budget_request/apps`: [Loom video](https://www.loom.com/share/014ae0b512634d6a91adac2885205e4e)
 
 - `users` holds the custom user and the `client`, `manager`, and `admin` roles.
 - `budget` holds budget requests and audit logs.
