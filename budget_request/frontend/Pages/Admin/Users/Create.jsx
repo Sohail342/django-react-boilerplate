@@ -5,7 +5,7 @@ import { UserForm } from "@/Components/admin/UserForm"
 import { useRoute } from "@/composables/useRoute"
 import { AdminLayout } from "@/Layouts/AdminLayout"
 
-export default function UsersCreate({ form: initialForm, errors = {}, groups_choices = [], can }) {
+export default function UsersCreate({ form: initialForm, errors = {}, groups_choices = [], role_choices = [], can }) {
   const route = useRoute()
   const form = useForm(initialForm)
 
@@ -19,6 +19,7 @@ export default function UsersCreate({ form: initialForm, errors = {}, groups_cho
         setData={form.setData}
         errors={errors}
         groupsChoices={groups_choices}
+        roleChoices={role_choices}
         canGrantPrivileges={can.grant_privileges}
         processing={form.processing}
         onSubmit={() => form.post(route("admin_user_create"))}

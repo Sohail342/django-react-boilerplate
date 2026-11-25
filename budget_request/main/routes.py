@@ -10,7 +10,6 @@ import re
 from django.urls import get_resolver, get_script_prefix
 
 EXPOSED_ROUTE_NAMES = (
-    "home",
     "login",
     "logout",
     "admin_dashboard",
@@ -22,6 +21,14 @@ EXPOSED_ROUTE_NAMES = (
     "admin_group_create",
     "admin_group_edit",
     "admin_group_delete",
+    "budget_requests",
+    "budget_request_create",
+    "budget_request_edit",
+    "budget_request_withdraw",
+    "budget_reviews",
+    "budget_request_decide",
+    "budget_admin",
+    "budget_request_delete",
 )
 
 _PLACEHOLDER = re.compile(r"%\((\w+)\)s")

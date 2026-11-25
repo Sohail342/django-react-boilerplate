@@ -33,7 +33,7 @@ class AccessTests(InertiaClientMixin, TestCase):
     def test_anonymous_is_redirected_to_login(self):
         response = self.client.get("/admin/users/")
         self.assertRedirects(
-            response, "/admin/login/?next=/admin/users/", fetch_redirect_response=False
+            response, "/?next=/admin/users/", fetch_redirect_response=False
         )
 
     def test_staff_without_permission_gets_403(self):
@@ -76,7 +76,13 @@ class UserViewTests(InertiaClientMixin, TestCase):
         )
         self.assertEqual(
             [item["route"] for item in props["admin_nav"]],
-            ["admin_dashboard", "admin_users", "admin_groups"],
+            [
+                "admin_dashboard",
+                "admin_users",
+                "admin_groups",
+                "budget_requests",
+                "budget_request_create",
+            ],
         )
 
     def test_create_redirects_with_flash_message(self):
@@ -183,11 +189,11 @@ class AuthViewTests(InertiaClientMixin, TestCase):
 
     def test_login_and_logout_with_csrf_enforced(self):
         client = Client(enforce_csrf_checks=True)
-        client.get("/admin/login/")
+        client.get("/")
         token = client.cookies["csrftoken"].value
 
         response = client.post(
-            "/admin/login/",
+            "/",
             json.dumps(
                 {
                     "username": "staffuser",
@@ -204,36 +210,36 @@ class AuthViewTests(InertiaClientMixin, TestCase):
         # Django rotates the CSRF token on login.
         token = client.cookies["csrftoken"].value
         response = client.post("/logout/", HTTP_X_CSRFTOKEN=token, **INERTIA_HEADERS)
-        self.assertRedirects(response, "/admin/login/", fetch_redirect_response=False)
+        self.assertRedirects(response, "/", fetch_redirect_response=False)
 
     def test_foreign_xsrf_token_cookie_does_not_break_csrf(self):
         # Laravel/Angular apps on the same host set an XSRF-TOKEN cookie in a
         # format Django rejects; it must not be used for Django's CSRF check.
         client = Client(enforce_csrf_checks=True)
-        client.get("/admin/login/")
+        client.get("/")
         client.cookies["XSRF-TOKEN"] = "x" * 92
         token = client.cookies["csrftoken"].value
 
         response = client.post(
-            "/admin/login/",
+            "/",
             json.dumps({"username": "staffuser", "password": STRONG_PASSWORD}),
             content_type="application/json",
             HTTP_X_CSRFTOKEN=token,
             **INERTIA_HEADERS,
         )
 
-        self.assertRedirects(response, "/admin/", fetch_redirect_response=False)
+        self.assertRedirects(response, "/requests/", fetch_redirect_response=False)
 
     def test_post_without_csrf_token_is_rejected(self):
         client = Client(enforce_csrf_checks=True)
         response = client.post(
-            "/admin/login/", {"username": "staffuser", "password": STRONG_PASSWORD}
+            "/", {"username": "staffuser", "password": STRONG_PASSWORD}
         )
         self.assertEqual(response.status_code, 403)
 
     def test_failed_login_re_renders_without_password(self):
         response = self.post_json(
-            self.client, "/admin/login/", {"username": "staffuser", "password": "nope"}
+            self.client, "/", {"username": "staffuser", "password": "nope"}
         )
         props = self.page(response)["props"]
         self.assertEqual(

@@ -15,7 +15,7 @@ from apps.admin_panel.dto.users import (
 )
 from apps.admin_panel.selectors import groups as group_selectors
 from apps.admin_panel.selectors import users as user_selectors
-from apps.admin_panel.services.common import (
+from apps.common import (
     ensure_allowed,
     merge_errors,
     paginate,
@@ -219,6 +219,7 @@ def _apply_profile(user: User, data: UserFormInputDTO) -> None:
     user.is_active = data.is_active
     user.is_staff = data.is_staff
     user.is_superuser = data.is_superuser
+    user.role = data.role or User.Roles.CLIENT
 
 
 def _privilege_errors(
@@ -308,6 +309,7 @@ def _empty_form() -> dict:
         "is_active": True,
         "group_ids": [],
         "password": "",
+        "role": User.Roles.CLIENT,
     }
 
 
@@ -322,6 +324,7 @@ def _form_from_user(user: User) -> dict:
         "is_active": user.is_active,
         "group_ids": user_selectors.user_group_ids(user),
         "password": "",
+        "role": user.role,
     }
 
 
@@ -337,6 +340,7 @@ def _form_from_input(data: UserFormInputDTO) -> dict:
         "group_ids": sorted(frozenset(data.group_ids)),
         # Never echo a password back to the client.
         "password": "",
+        "role": data.role,
     }
 
 
@@ -349,6 +353,9 @@ def _form_page_props(actor: User, *, form: dict, errors: dict) -> dict:
             for group in group_selectors.group_choices()
         ],
         "can": {"grant_privileges": policies.can_grant_privileges(actor)},
+        "role_choices": [
+            {"value": value, "label": label} for value, label in User.Roles.choices
+        ],
     }
 
 

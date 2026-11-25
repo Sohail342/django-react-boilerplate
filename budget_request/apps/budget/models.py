@@ -48,7 +48,15 @@ class BudgetRequest(models.Model):
 
 
 class AuditLog(models.Model):
-    """Record of an action taken on a UUID-keyed entity."""
+    """Record of an action taken on a budget request."""
+
+    class Action(models.TextChoices):
+        CREATED = "created", "Created"
+        UPDATED = "updated", "Updated"
+        APPROVED = "approved", "Approved"
+        REJECTED = "rejected", "Rejected"
+        WITHDRAWN = "withdrawn", "Withdrawn"
+        DELETED = "deleted", "Deleted"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     actor = models.ForeignKey(

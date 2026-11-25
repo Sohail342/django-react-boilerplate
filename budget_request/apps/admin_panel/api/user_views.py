@@ -28,6 +28,7 @@ def _parse_user_form(request: HttpRequest) -> UserFormInputDTO:
         is_active=parse_bool(data.get("is_active")),
         group_ids=parse_id_list(data.get("group_ids")),
         password=parse_str(data.get("password")),
+        role=parse_str(data.get("role")) or "client",
     )
 
 

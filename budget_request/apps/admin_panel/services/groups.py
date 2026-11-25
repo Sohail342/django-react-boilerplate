@@ -13,7 +13,7 @@ from apps.admin_panel.dto.groups import (
     GroupListItemDTO,
 )
 from apps.admin_panel.selectors import groups as group_selectors
-from apps.admin_panel.services.common import (
+from apps.common import (
     ensure_allowed,
     merge_errors,
     paginate,

@@ -1,5 +1,5 @@
 import { Link } from "@inertiajs/react"
-import { ArrowLeft, Layers, LockKeyhole, Moon, ServerCog, Sun, Zap } from "lucide-react"
+import { Layers, LockKeyhole, Moon, ServerCog, Sun, Zap } from "lucide-react"
 import { Button } from "@/Components/ui/button"
 import { useRoute } from "@/composables/useRoute"
 import { useTheme } from "@/composables/useTheme"
@@ -48,7 +48,7 @@ export function AuthLayout({ children }) {
         />
         <div aria-hidden="true" className="absolute -left-40 -top-40 h-96 w-96 rounded-full bg-zinc-500/20 blur-3xl" />
 
-        <Link href={route("home")} className="relative z-10 w-fit">
+        <Link href={route("login")} className="relative z-10 w-fit">
           <div className="flex items-center gap-2 text-lg font-medium">
             <div className="flex h-8 w-8 items-center justify-center rounded-md bg-zinc-50 text-zinc-950">
               <Layers className="h-4 w-4" />
@@ -84,12 +84,6 @@ export function AuthLayout({ children }) {
         <div className="flex items-center justify-between">
           <Brand className="lg:invisible" />
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="sm" asChild>
-              <Link href={route("home")}>
-                <ArrowLeft />
-                Back to site
-              </Link>
-            </Button>
             <Button
               variant="ghost"
               size="icon"

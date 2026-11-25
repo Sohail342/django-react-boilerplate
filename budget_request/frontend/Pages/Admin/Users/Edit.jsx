@@ -9,7 +9,7 @@ import { UserForm } from "@/Components/admin/UserForm"
 import { useRoute } from "@/composables/useRoute"
 import { AdminLayout } from "@/Layouts/AdminLayout"
 
-export default function UsersEdit({ user, form: initialForm, errors = {}, groups_choices = [], can }) {
+export default function UsersEdit({ user, form: initialForm, errors = {}, groups_choices = [], role_choices = [], can }) {
   const route = useRoute()
   const form = useForm(initialForm)
   const [deleteOpen, setDeleteOpen] = React.useState(false)
@@ -52,6 +52,7 @@ export default function UsersEdit({ user, form: initialForm, errors = {}, groups
         setData={form.setData}
         errors={errors}
         groupsChoices={groups_choices}
+        roleChoices={role_choices}
         canGrantPrivileges={can.grant_privileges}
         processing={form.processing}
         onSubmit={() => form.post(route("admin_user_edit", { user_id: user.id }))}

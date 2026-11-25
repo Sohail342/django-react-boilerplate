@@ -7,7 +7,7 @@ MAX_PAGE_SIZE = 100
 
 
 def ensure_allowed(allowed: bool) -> None:
-    """Raise PermissionDenied (rendered by Django as a 403) when a policy check fails."""
+    """Raise PermissionDenied when a policy check fails."""
     if not allowed:
         raise PermissionDenied
 

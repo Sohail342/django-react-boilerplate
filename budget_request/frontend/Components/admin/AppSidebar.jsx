@@ -19,7 +19,7 @@ export function AppSidebar({ homeHref, navItems, user, isMobile, theme, onToggle
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild tooltip="Dashboard">
+            <SidebarMenuButton size="lg" asChild tooltip="Home">
               <Link href={homeHref} onClick={onNavigate}>
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <Layers className="size-4" />

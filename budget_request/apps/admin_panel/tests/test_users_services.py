@@ -47,6 +47,7 @@ def form_for(user, **overrides) -> UserFormInputDTO:
         "is_active": user.is_active,
         "group_ids": tuple(user.groups.values_list("pk", flat=True)),
         "password": "",
+        "role": user.role,
     }
     values.update(overrides)
     return UserFormInputDTO(**values)

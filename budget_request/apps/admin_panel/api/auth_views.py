@@ -9,10 +9,23 @@ from inertia import render
 from apps.admin_panel.api.request_utils import client_ip, get_request_data, parse_str
 from apps.admin_panel.dto.auth import LoginInputDTO
 from apps.admin_panel.services.auth import get_login_page, login_user, logout_user
+from apps.budget.domain.policies import role_home_url
+
+
+def legacy_login_redirect(request: HttpRequest):
+    """Old sign-in URL. Keeps the query string so `next` still works."""
+    target = reverse("login")
+    query = request.META.get("QUERY_STRING", "")
+    if query:
+        target = f"{target}?{query}"
+    return redirect(target)
 
 
 @require_http_methods(["GET", "POST"])
 def login_view(request: HttpRequest):
+    if getattr(request.user, "is_authenticated", False):
+        return redirect(role_home_url(request.user))
+
     if request.method == "GET":
         next_url = request.GET.get("next", "")
         return render(request, "Auth/Login", get_login_page(next_url=next_url))
@@ -22,7 +35,6 @@ def login_view(request: HttpRequest):
         username=parse_str(data.get("username")),
         password=parse_str(data.get("password")),
         next_url=parse_str(data.get("next")) or request.GET.get("next", ""),
-        default_redirect_url=reverse("admin_dashboard"),
         client_ip=client_ip(request),
     )
     result = login_user(request, dto)

@@ -38,6 +38,11 @@ export function UserForm({
   setData,
   errors = {},
   groupsChoices = [],
+  roleChoices = [
+    { value: "client", label: "Client" },
+    { value: "manager", label: "Manager" },
+    { value: "admin", label: "Admin" },
+  ],
   canGrantPrivileges,
   processing,
   onSubmit,
@@ -94,6 +99,24 @@ export function UserForm({
               {textInput("last_name")}
             </FormField>
           </div>
+          <FormField label="Role" htmlFor="role" error={errors.role?.[0]} required>
+            <select
+              id="role"
+              value={data.role ?? "client"}
+              onChange={(e) => setData("role", e.target.value)}
+              aria-invalid={errors.role?.length ? true : undefined}
+              className={cn(
+                "flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                errors.role?.length && "border-destructive focus-visible:ring-destructive"
+              )}
+            >
+              {roleChoices.map((choice) => (
+                <option key={choice.value} value={choice.value}>
+                  {choice.label}
+                </option>
+              ))}
+            </select>
+          </FormField>
         </CardContent>
       </Card>
 

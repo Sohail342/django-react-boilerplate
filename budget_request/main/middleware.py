@@ -2,7 +2,8 @@ from django.contrib import messages
 from django.middleware.csrf import get_token
 from inertia import share
 
-from apps.admin_panel.services.navigation import get_admin_navigation
+from apps.budget.domain.policies import role_home
+from apps.budget.services.navigation import get_navigation
 from main.routes import route_map
 
 
@@ -21,8 +22,16 @@ def get_auth_props(request) -> dict:
             "email": getattr(user, "email", "") or "",
             "first_name": getattr(user, "first_name", "") or "",
             "last_name": getattr(user, "last_name", "") or "",
+            "role": getattr(user, "role", "") or "",
         }
     }
+
+
+def get_home_props(request) -> dict:
+    user = getattr(request, "user", None)
+    if user is None or not user.is_authenticated:
+        return {"label": "Sign in", "route": "login"}
+    return role_home(user)
 
 
 def get_flash_props(request) -> list[dict]:
@@ -51,7 +60,8 @@ def inertia_shared_props(get_response):
             auth=lambda: get_auth_props(request),
             flash=lambda: get_flash_props(request),
             routes=route_map,
-            admin_nav=lambda: get_admin_navigation(actor=request.user),
+            admin_nav=lambda: get_navigation(actor=request.user),
+            home=lambda: get_home_props(request),
         )
         return get_response(request)
 

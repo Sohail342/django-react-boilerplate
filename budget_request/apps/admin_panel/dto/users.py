@@ -27,6 +27,7 @@ class UserFormInputDTO:
     is_active: bool
     group_ids: tuple[int, ...]
     password: str  # Required on create; "" keeps the current password on update.
+    role: str = "client"
 
 
 @dataclass(frozen=True)

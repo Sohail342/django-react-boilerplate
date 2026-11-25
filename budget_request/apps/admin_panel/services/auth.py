@@ -9,12 +9,12 @@ from django.contrib.auth import (
 from django.http import HttpRequest
 from django.utils.http import url_has_allowed_host_and_scheme
 
-from apps.admin_panel.domain.policies import can_access_admin
 from apps.admin_panel.dto.auth import LoginInputDTO, LoginResultDTO
 from apps.admin_panel.infrastructure import attempt_counter
+from apps.budget.domain.policies import role_home_url
 
 INVALID_CREDENTIALS_ERROR = (
-    "Please enter the correct username and password for a staff account. "
+    "Please enter the correct username and password. "
     "Note that both fields may be case-sensitive."
 )
 TOO_MANY_ATTEMPTS_ERROR = "Too many failed login attempts. Please try again later."
@@ -29,11 +29,12 @@ def get_login_page(*, next_url: str) -> dict:
 
 def login_user(request: HttpRequest, data: LoginInputDTO) -> LoginResultDTO:
     """
-    Log in an active staff user, mirroring Django admin.
+    Log in an active user.
 
-    The error message is identical for unknown users, wrong passwords, inactive
-    accounts and non-staff accounts so the form cannot be used to probe accounts.
-    Repeated failures from one client are throttled.
+    The error message is identical for unknown users, wrong passwords and
+    inactive accounts so the form cannot be used to probe accounts. Repeated
+    failures from one client are throttled. With no safe next URL, the user
+    lands on the home for their role.
     """
 
     username = data.username.strip()
@@ -51,7 +52,7 @@ def login_user(request: HttpRequest, data: LoginInputDTO) -> LoginResultDTO:
         return _failure(username, data, errors)
 
     user = authenticate(request, username=username, password=data.password)
-    if user is None or not can_access_admin(user):
+    if user is None or not user.is_active:
         window = settings.ADMIN_LOGIN_LOCKOUT_SECONDS
         attempt_counter.increment(user_key, window_seconds=window)
         attempt_counter.increment(client_key, window_seconds=window)
@@ -64,9 +65,7 @@ def login_user(request: HttpRequest, data: LoginInputDTO) -> LoginResultDTO:
 
     return LoginResultDTO(
         success=True,
-        redirect_url=_safe_redirect_url(
-            request, data.next_url, data.default_redirect_url
-        ),
+        redirect_url=_safe_redirect_url(request, data.next_url, role_home_url(user)),
         errors={},
         page_props=None,
     )

@@ -11,7 +11,6 @@ class LoginInputDTO:
     username: str
     password: str
     next_url: str
-    default_redirect_url: str
     client_ip: str
 
 

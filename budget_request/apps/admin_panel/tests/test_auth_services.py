@@ -10,10 +10,11 @@ from apps.admin_panel.services.auth import (
     logout_user,
 )
 from apps.admin_panel.tests.factories import STRONG_PASSWORD, make_staff, make_user
+from apps.users.models import User
 
 
 def request_with_session():
-    request = RequestFactory().post("/admin/login/")
+    request = RequestFactory().post("/")
     request.session = SessionStore()
     return request
 
@@ -23,7 +24,6 @@ def login_input(**overrides) -> LoginInputDTO:
         "username": "staffuser",
         "password": STRONG_PASSWORD,
         "next_url": "",
-        "default_redirect_url": "/admin/",
         "client_ip": "203.0.113.5",
     }
     values.update(overrides)
@@ -39,7 +39,7 @@ class LoginServiceTests(TestCase):
         request = request_with_session()
         result = login_user(request, login_input())
         self.assertTrue(result.success)
-        self.assertEqual(result.redirect_url, "/admin/")
+        self.assertEqual(result.redirect_url, "/requests/")
         self.assertEqual(request.session["_auth_user_id"], str(self.user.pk))
 
     def test_login_honours_safe_next_url(self):
@@ -52,7 +52,7 @@ class LoginServiceTests(TestCase):
         result = login_user(
             request_with_session(), login_input(next_url="https://evil.example/")
         )
-        self.assertEqual(result.redirect_url, "/admin/")
+        self.assertEqual(result.redirect_url, "/requests/")
 
     def test_wrong_password_returns_generic_error(self):
         result = login_user(request_with_session(), login_input(password="wrong"))
@@ -73,12 +73,20 @@ class LoginServiceTests(TestCase):
         )
         self.assertEqual(right.errors, wrong.errors)
 
-    def test_non_staff_cannot_log_in(self):
+    def test_active_non_staff_can_log_in(self):
         make_user("regular")
         result = login_user(request_with_session(), login_input(username="regular"))
-        self.assertEqual(
-            result.errors, {"non_field_errors": [INVALID_CREDENTIALS_ERROR]}
-        )
+        self.assertTrue(result.success)
+        self.assertEqual(result.redirect_url, "/requests/")
+
+    def test_login_redirects_to_the_role_home(self):
+        make_user("boss", role=User.Roles.MANAGER)
+        manager = login_user(request_with_session(), login_input(username="boss"))
+        self.assertEqual(manager.redirect_url, "/reviews/")
+
+        make_user("chief", role=User.Roles.ADMIN)
+        admin = login_user(request_with_session(), login_input(username="chief"))
+        self.assertEqual(admin.redirect_url, "/budget/")
 
     def test_empty_fields_return_validation_errors(self):
         result = login_user(

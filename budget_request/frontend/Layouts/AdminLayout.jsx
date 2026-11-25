@@ -1,6 +1,6 @@
 import * as React from "react"
 import { router, usePage } from "@inertiajs/react"
-import { LayoutDashboard, Shield, Users } from "lucide-react"
+import { CheckCheck, ClipboardList, LayoutDashboard, PieChart, Plus, Shield, Users } from "lucide-react"
 import { toast } from "sonner"
 import { SidebarInset, SidebarProvider } from "@/Components/ui/sidebar"
 import { Toaster } from "@/Components/ui/sonner"
@@ -17,7 +17,13 @@ const NAV_ICONS = {
   dashboard: LayoutDashboard,
   users: Users,
   groups: Shield,
+  requests: ClipboardList,
+  plus: Plus,
+  reviews: CheckCheck,
+  summary: PieChart,
 }
+
+const EXACT_ROUTES = new Set(["admin_dashboard", "budget_requests", "budget_reviews", "budget_admin"])
 
 const TOASTS = {
   success: toast.success,
@@ -49,21 +55,23 @@ export function AdminLayout({ breadcrumbs = [], children }) {
           label: item.label,
           href,
           icon: NAV_ICONS[item.icon] ?? LayoutDashboard,
-          active: isActivePath(url, href, { exact: item.route === "admin_dashboard" }),
+          active: isActivePath(url, href, { exact: EXACT_ROUTES.has(item.route) }),
         }
       }),
     [props.admin_nav, route, url]
   )
 
+  const homeHref = props.home?.route ? route(props.home.route) : route("login")
+
   const resolvedBreadcrumbs = React.useMemo(
     () => [
-      { label: "Admin", href: route("admin_dashboard") },
+      { label: props.home?.label ?? "Home", href: homeHref },
       ...breadcrumbs.map((crumb) => ({
         label: crumb.label,
         href: crumb.route ? route(crumb.route, crumb.params) : undefined,
       })),
     ],
-    [breadcrumbs, route]
+    [breadcrumbs, homeHref, props.home?.label, route]
   )
 
   // Django messages arrive as the shared `flash` prop; show each once as a toast.
@@ -98,7 +106,7 @@ export function AdminLayout({ breadcrumbs = [], children }) {
       isMobile={isMobile}
     >
       <AppSidebar
-        homeHref={route("admin_dashboard")}
+        homeHref={homeHref}
         navItems={navItems}
         user={props.auth?.user}
         isMobile={isMobile}
